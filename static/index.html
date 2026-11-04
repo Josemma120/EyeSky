@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EyeSky - Panel de Reconocimiento Facial</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --border: #1f2937;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --primary: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .brand p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Video Section */
+    .video-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .video-header {
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .video-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .video-container {
+      position: relative;
+      background: #000;
+      width: 100%;
+      min-height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-height: 640px;
+      object-fit: contain;
+    }
+
+    .video-footer {
+      padding: 1rem 1.25rem;
+      background: #0f172a;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .detection-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      flex: 1;
+      transition: all 0.3s ease;
+    }
+
+    .banner-idle {
+      background: rgba(156, 163, 175, 0.1);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .banner-match {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .banner-unknown {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      animation: alertPulse 1.5s infinite;
+    }
+
+    @keyframes alertPulse {
+      0%, 100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
+      50% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .person-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .person-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.85rem;
+      background: #1e293b;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .person-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .person-info {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .log-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-height: 260px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+    }
+
+    .log-item {
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      background: #0f172a;
+      border-left: 3px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .log-item.match {
+      border-left-color: var(--success);
+    }
+
+    .log-item.unknown {
+      border-left-color: var(--danger);
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #1e293b;
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: #334155;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Encabezado -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">👁️</div>
+      <div>
+        <h1>EyeSky</h1>
+        <p>Sistema Inteligente de Seguridad y Reconocimiento Facial</p>
+      </div>
+    </div>
+    <div class="header-badges">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span id="cameraStatus">CÁMARA CONECTADA</span>
+      </div>
+      <div class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3);">
+        <span id="fpsBadge">FPS: --</span>
+      </div>
+      <a href="/docs" target="_blank" class="btn" style="text-decoration: none; padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+        📘 API Docs
+      </a>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main>
+    <!-- Columna de Video -->
+    <section class="video-card">
+      <div class="video-header">
+        <div class="video-title">
+          <span>📹</span>
+          <span>Transmisión en Vivo (ArcFace Edge)</span>
+        </div>
+        <button class="btn" onclick="reloadStream()">🔄 Recargar Video</button>
+      </div>
+
+      <div class="video-container">
+        <img id="videoFeed" src="/api/stream/video_feed" alt="Transmisión de cámara" onerror="handleStreamError()">
+      </div>
+
+      <div class="video-footer">
+        <div id="detectionBanner" class="detection-banner banner-idle">
+          <span>⚪</span>
+          <span id="detectionText">Esperando rostros frente a la cámara...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Barra lateral -->
+    <aside class="sidebar">
+      <!-- Panel de Personas Autorizadas -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>👥 Personas Autorizadas</span>
+          <span id="personsCount" style="color: var(--text-muted); font-size: 0.8rem;">(0)</span>
+        </div>
+        <ul id="personsList" class="person-list">
+          <li style="color: var(--text-muted); font-size: 0.8rem;">Cargando catálogo...</li>
+        </ul>
+        <button class="btn" onclick="reloadCatalog()">🔄 Recargar Catálogo</button>
+      </div>
+
+      <!-- Panel de Eventos / Log en tiempo real -->
+      <div class="panel" style="flex: 1;">
+        <div class="panel-title">
+          <span>⚡ Detecciones en Vivo</span>
+          <span style="color: var(--text-muted); font-size: 0.75rem;">Tiempo real</span>
+        </div>
+        <ul id="logList" class="log-list">
+          <li class="log-item" style="color: var(--text-muted);">Sin eventos registrados aún.</li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const videoFeed = document.getElementById("videoFeed");
+    const detectionBanner = document.getElementById("detectionBanner");
+    const detectionText = document.getElementById("detectionText");
+    const personsList = document.getElementById("personsList");
+    const personsCount = document.getElementById("personsCount");
+    const logList = document.getElementById("logList");
+    const fpsBadge = document.getElementById("fpsBadge");
+    const cameraStatus = document.getElementById("cameraStatus");
+
+    let lastLoggedName = null;
+    let lastLogTime = 0;
+
+    function reloadStream() {
+      videoFeed.src = "/api/stream/video_feed?t=" + new Date().getTime();
+    }
+
+    function handleStreamError() {
+      cameraStatus.textContent = "CÁMARA DESCONECTADA";
+      cameraStatus.parentElement.style.color = "var(--danger)";
+      cameraStatus.parentElement.style.borderColor = "rgba(239, 68, 68, 0.4)";
+      cameraStatus.parentElement.style.background = "rgba(239, 68, 68, 0.15)";
+      detectionBanner.className = "detection-banner banner-unknown";
+      detectionText.textContent = "Error al conectar con la cámara. Verifica que Iriun o tu cámara esté activa.";
+    }
+
+    async function updateStatus() {
+      try {
+        const res = await fetch("/api/stream/status");
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // Actualizar FPS
+        if (data.fps !== undefined) {
+          fpsBadge.textContent = `FPS: ${data.fps}`;
+        }
+
+        // Actualizar lista de personas autorizadas
+        if (data.registered_persons) {
+          personsCount.textContent = `(${data.registered_persons.length})`;
+          personsList.innerHTML = data.registered_persons.map(name => `
+            <li class="person-item">
+              <div class="person-info">
+                <div class="person-avatar">${name.charAt(0).toUpperCase()}</div>
+                <strong>${name}</strong>
+              </div>
+              <span style="color: var(--success); font-size: 0.75rem; font-weight: 600;">Autorizado</span>
+            </li>
+          `).join("") || '<li style="color: var(--text-muted); font-size: 0.8rem;">No hay personas en el catálogo</li>';
+        }
+
+        // Actualizar banner de detección
+        const dets = data.current_detections || [];
+        if (dets.length === 0) {
+          detectionBanner.className = "detection-banner banner-idle";
+          detectionBanner.innerHTML = "<span>⚪</span> <span>Esperando rostros frente a la cámara...</span>";
+        } else {
+          const first = dets[0];
+          if (first.is_authorized) {
+            detectionBanner.className = "detection-banner banner-match";
+            detectionBanner.innerHTML = `<span>✅</span> <span><strong>${first.name}</strong> detectado (${first.confidence}% coincidencia)</span>`;
+            addLog(first.name, first.confidence, true);
+          } else {
+            detectionBanner.className = "detection-banner banner-unknown";
+            detectionBanner.innerHTML = `<span>⚠️</span> <span><strong>Persona No Reconocida</strong> detectada (${first.confidence}% similitud)</span>`;
+            addLog("Desconocido", first.confidence, false);
+          }
+        }
+      } catch (err) {
+        console.error("Error al obtener estado:", err);
+      }
+    }
+
+    function addLog(name, confidence, isAuth) {
+      const now = Date.now();
+      // Evitar saturar el historial si es la misma persona cada 3 segundos
+      if (lastLoggedName === name && (now - lastLogTime) < 3000) {
+        return;
+      }
+      lastLoggedName = name;
+      lastLogTime = now;
+
+      const timeStr = new Date().toLocaleTimeString();
+      const li = document.createElement("li");
+      li.className = `log-item ${isAuth ? 'match' : 'unknown'}`;
+      li.innerHTML = `
+        <div>
+          <strong>${isAuth ? '✓ ' + name : '⚠ Desconocido'}</strong>
+          <span style="color: var(--text-muted); margin-left: 0.5rem;">${confidence}%</span>
+        </div>
+        <span style="color: var(--text-muted); font-size: 0.7rem;">${timeStr}</span>
+      `;
+
+      if (logList.children[0] && logList.children[0].textContent.includes("Sin eventos")) {
+        logList.innerHTML = "";
+      }
+
+      logList.prepend(li);
+      while (logList.children.length > 10) {
+        logList.removeChild(logList.lastChild);
+      }
+    }
+
+    async function reloadCatalog() {
+      try {
+        const res = await fetch("/api/stream/reload", { method: "POST" });
+        const data = await res.json();
+        alert(data.message + ": " + (data.registered.join(", ") || "Ninguna"));
+        updateStatus();
+      } catch (e) {
+        alert("Error al recargar catálogo");
+      }
+    }
+
+    // Polling de estado cada 500 ms
+    setInterval(updateStatus, 500);
+    updateStatus();
+  </script>
+</body>
+</html>
+
