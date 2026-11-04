@@ -1,36 +1,88 @@
 # EyeSky - Reconocimiento Facial en Vivo con ArcFace
 
-Sistema Inteligente de Seguridad y Reconocimiento Facial (Edge-to-Cloud).
+> Sistema Inteligente de Seguridad y Reconocimiento Facial para Entornos Residenciales y PyMEs (Edge-to-Cloud).
 
 ---
 
-## 🚀 Cómo iniciar el sistema con interfaz web
+## 📋 Requisitos Previos
 
-### 1. Activar el entorno virtual:
+- Python 3.10 o 3.11 instalado en el sistema.
+- Cámara web integrada o dispositivo móvil conectado (ej. iPhone con **Iriun Webcam**).
+
+---
+
+## 🚀 Instalación y Puesta en Marcha
+
+Si acabas de clonar el repositorio en una máquina nueva, sigue estos pasos en orden:
+
+### 1. Crear el entorno virtual de Python
+```powershell
+python -m venv venv
+```
+
+### 2. Activar el entorno virtual
+En Windows (PowerShell):
 ```powershell
 .\venv\Scripts\Activate.ps1
 ```
+*(Si PowerShell bloquea la ejecución de scripts, ejecuta primero: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`)*
 
-### 2. Registrar las fotos (si agregas nuevas personas a `dataset/`):
+### 3. Instalar las dependencias
 ```powershell
-python register_faces.py
+pip install -r requirements.txt
 ```
 
-### 3. Iniciar el servidor web de EyeSky:
+### 4. Configurar las variables de entorno
+Crea tu archivo `.env` a partir del ejemplo:
+```powershell
+Copy-Item .env.example .env
+```
+*(Puedes ajustar aquí el umbral de similitud `SIMILARITY_THRESHOLD=0.55` y la fuente de la cámara `CAMERA_SOURCE=0`)*.
+
+---
+
+## 👤 Registro de Personas (Dataset)
+
+1. Coloca las fotografías de las personas autorizadas dentro de la carpeta `dataset/`, creando una carpeta por persona:
+   ```text
+   dataset/
+   ├── Emmanuel/
+   │   ├── foto1.jpg
+   │   └── foto2.jpg
+   └── Janeth/
+       ├── foto1.jpg
+       └── foto2.jpg
+   ```
+2. Ejecuta el script de extracción biométrica con ArcFace:
+   ```powershell
+   python register_faces.py
+   ```
+   *(Esto generará el archivo `data/known_faces.pkl` con los vectores biométricos).*
+
+---
+
+## 🖥️ Ejecutar el Sistema (Panel Web)
+
+### 1. Iniciar el servidor de desarrollo
 ```powershell
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 4. Abrir la interfaz web en tu navegador:
-Abre cualquier navegador (Chrome, Edge, Safari en tu PC o teléfono) e ingresa a:
+### 2. Abrir la interfaz web
+Ingresa desde cualquier navegador a:
 👉 **[http://localhost:8000](http://localhost:8000)**
 
 ---
 
-## 🖥️ Características del Panel Web
+## 📸 Ejecución alternativa por consola (Ventana OpenCV)
+Si prefieres ver la cámara directamente en una ventana nativa de escritorio:
+```powershell
+python camera_recognition.py
+```
+*(Presiona la tecla **`q`** para cerrar la ventana).*
 
-- **Streaming en vivo:** Transmisión directa desde tu cámara (o iPhone con Iriun Webcam) con los recuadros verdes (autorizados) y rojos (desconocidos).
-- **Indicador en tiempo real:** Muestra inmediatamente quién está frente a la cámara con el porcentaje de coincidencia.
-- **Lista de autorizados:** Despliega todas las personas registradas en el catálogo biométrico de ArcFace.
-- **Historial de detecciones:** Bitácora en vivo con la hora exacta en que cada persona fue reconocida.
-- **Documentación de la API:** Disponible en [http://localhost:8000/docs](http://localhost:8000/docs).
+---
+
+## 📘 Documentación de la API REST
+FastAPI genera automáticamente la documentación interactiva Swagger en:
+👉 **[http://localhost:8000/docs](http://localhost:8000/docs)**
