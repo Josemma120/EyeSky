@@ -3,9 +3,11 @@ uvicorn[standard]>=0.30.0
 pydantic>=2.0.0
 python-dotenv>=1.0.0
 sqlalchemy>=2.0.0
+python-multipart>=0.0.9
 numpy
 opencv-python
 pillow
+pillow-heif
 
 # Reconocimiento y detección facial
 insightface

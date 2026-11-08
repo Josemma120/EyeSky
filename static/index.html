@@ -12,6 +12,7 @@
       --text: #f9fafb;
       --text-muted: #9ca3af;
       --primary: #3b82f6;
+      --primary-hover: #2563eb;
       --success: #10b981;
       --danger: #ef4444;
       --warning: #f59e0b;
@@ -110,7 +111,7 @@
       flex: 1;
       padding: 1.5rem 2rem;
       display: grid;
-      grid-template-columns: 1fr 360px;
+      grid-template-columns: 1fr 380px;
       gap: 1.5rem;
       max-width: 1400px;
       margin: 0 auto;
@@ -257,6 +258,11 @@
       background: #1e293b;
       border-radius: 8px;
       font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .person-item:hover {
+      background: #273549;
     }
 
     .person-avatar {
@@ -306,15 +312,20 @@
       border-left-color: var(--danger);
     }
 
+    /* Buttons */
     .btn {
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
+      padding: 0.55rem 1rem;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: #1e293b;
       color: var(--text);
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
       transition: all 0.2s;
     }
 
@@ -325,10 +336,245 @@
     .btn-primary {
       background: var(--primary);
       border-color: var(--primary);
+      color: #fff;
     }
 
     .btn-primary:hover {
-      background: #2563eb;
+      background: var(--primary-hover);
+    }
+
+    .btn-danger-icon {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-danger-icon:hover {
+      color: var(--danger);
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: modalSlide 0.25s ease-out;
+    }
+
+    @keyframes modalSlide {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .form-input {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+
+    /* Drop Zone */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      background: #0f172a;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .drop-zone-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .drop-zone-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .drop-zone-subtext {
+      font-size: 0.75rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+
+    /* Previews */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 0.5rem;
+      max-height: 160px;
+      overflow-y: auto;
+      margin-top: 0.5rem;
+    }
+
+    .preview-item {
+      position: relative;
+      width: 100%;
+      height: 70px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .preview-remove {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: rgba(239, 68, 68, 0.9);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.25rem;
+      background: #0f172a;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .alert-box {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
     }
   </style>
 </head>
@@ -389,6 +635,12 @@
           <span>👥 Personas Autorizadas</span>
           <span id="personsCount" style="color: var(--text-muted); font-size: 0.8rem;">(0)</span>
         </div>
+
+        <button class="btn btn-primary" onclick="openRegisterModal()" style="width: 100%;">
+          <span>➕</span>
+          <span>Registrar Nueva Persona</span>
+        </button>
+
         <ul id="personsList" class="person-list">
           <li style="color: var(--text-muted); font-size: 0.8rem;">Cargando catálogo...</li>
         </ul>
@@ -408,6 +660,53 @@
     </aside>
   </main>
 
+  <!-- Modal para Registrar Persona con Fotos -->
+  <div id="registerModal" class="modal-overlay" onclick="closeModalOnBackdrop(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>👤</span>
+          <span>Registrar Persona Autorizada</span>
+        </div>
+        <button class="modal-close" onclick="closeRegisterModal()">&times;</button>
+      </div>
+
+      <form id="registerForm" onsubmit="handleRegisterSubmit(event)">
+        <div class="modal-body">
+          <div id="modalAlert" class="alert-box"></div>
+
+          <div class="form-group">
+            <label class="form-label" for="personName">Nombre completo o identificador *</label>
+            <input type="text" id="personName" class="form-input" placeholder="Ej. Emmanuel, Janeth, Moises" required autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              Fotografías del rostro (Mínimo 4 obligatorias) *
+              <span id="photoCountBadge" style="font-size: 0.8rem; font-weight: 700; color: var(--warning); margin-left: 0.5rem;">(0/4 seleccionadas)</span>
+            </label>
+            <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+              <div class="drop-zone-icon">📸</div>
+              <div class="drop-zone-text">Haz clic o arrastra fotos aquí (mínimo 4)</div>
+              <div class="drop-zone-subtext">JPG, PNG, WEBP o HEIC. Se descartarán automáticamente fotos sin rostro.</div>
+              <input type="file" id="fileInput" multiple accept="image/*,.heic" style="display: none;" onchange="handleFilesSelected(this.files)">
+            </div>
+
+            <!-- Previsualización de fotos -->
+            <div id="previewGrid" class="preview-grid"></div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn" onclick="closeRegisterModal()">Cancelar</button>
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <span>Guardar y Procesar Biometría</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const videoFeed = document.getElementById("videoFeed");
     const detectionBanner = document.getElementById("detectionBanner");
@@ -418,8 +717,176 @@
     const fpsBadge = document.getElementById("fpsBadge");
     const cameraStatus = document.getElementById("cameraStatus");
 
+    // Modal elements
+    const registerModal = document.getElementById("registerModal");
+    const personNameInput = document.getElementById("personName");
+    const fileInput = document.getElementById("fileInput");
+    const previewGrid = document.getElementById("previewGrid");
+    const dropZone = document.getElementById("dropZone");
+    const submitBtn = document.getElementById("submitBtn");
+    const modalAlert = document.getElementById("modalAlert");
+
+    let selectedFiles = [];
     let lastLoggedName = null;
     let lastLogTime = 0;
+
+    // Control del Modal
+    function openRegisterModal() {
+      selectedFiles = [];
+      personNameInput.value = "";
+      previewGrid.innerHTML = "";
+      if (photoCountBadge) {
+        photoCountBadge.textContent = "(0/4 seleccionadas)";
+        photoCountBadge.style.color = "var(--warning)";
+      }
+      hideAlert();
+      registerModal.classList.add("active");
+      personNameInput.focus();
+    }
+
+    function closeRegisterModal() {
+      registerModal.classList.remove("active");
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target === registerModal) {
+        closeRegisterModal();
+      }
+    }
+
+    // Drag & Drop
+    dropZone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", () => {
+      dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFilesSelected(e.dataTransfer.files);
+      }
+    });
+
+    function handleFilesSelected(files) {
+      for (const file of files) {
+        if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+          selectedFiles.push(file);
+        }
+      }
+      renderPreviews();
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      renderPreviews();
+    }
+
+    const photoCountBadge = document.getElementById("photoCountBadge");
+
+    function renderPreviews() {
+      previewGrid.innerHTML = "";
+      const count = selectedFiles.length;
+      if (photoCountBadge) {
+        if (count >= 4) {
+          photoCountBadge.textContent = `(${count} seleccionadas - ¡Listo!)`;
+          photoCountBadge.style.color = "var(--success)";
+        } else {
+          photoCountBadge.textContent = `(${count}/4 seleccionadas - faltan ${4 - count})`;
+          photoCountBadge.style.color = "var(--warning)";
+        }
+      }
+
+      selectedFiles.forEach((file, index) => {
+        const item = document.createElement("div");
+        item.className = "preview-item";
+
+        const img = document.createElement("img");
+        if (file.name.toLowerCase().endsWith(".heic")) {
+          img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect fill='%231e293b' width='100' height='100'/><text fill='%2338bdf8' font-size='14' font-family='sans-serif' x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'>HEIC</text></svg>";
+        } else {
+          img.src = URL.createObjectURL(file);
+        }
+
+        const rm = document.createElement("button");
+        rm.className = "preview-remove";
+        rm.innerHTML = "&times;";
+        rm.type = "button";
+        rm.onclick = (e) => {
+          e.stopPropagation();
+          removeFile(index);
+        };
+
+        item.appendChild(img);
+        item.appendChild(rm);
+        previewGrid.appendChild(item);
+      });
+    }
+
+    function showAlert(text, isError = true) {
+      modalAlert.textContent = text;
+      modalAlert.className = `alert-box ${isError ? 'alert-error' : 'alert-success'}`;
+      modalAlert.style.display = "block";
+    }
+
+    function hideAlert() {
+      modalAlert.style.display = "none";
+    }
+
+    // Envío del Formulario a la API
+    async function handleRegisterSubmit(e) {
+      e.preventDefault();
+      hideAlert();
+
+      const name = personNameInput.value.trim();
+      if (!name) {
+        showAlert("Por favor ingresa el nombre de la persona.", true);
+        return;
+      }
+
+      if (selectedFiles.length < 4) {
+        showAlert(`Requisito forzoso: Debes seleccionar al menos 4 fotografías (has seleccionado ${selectedFiles.length}).`, true);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("name", name);
+      selectedFiles.forEach(file => {
+        formData.append("photos", file);
+      });
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span class="spinner"></span> <span>Extrayendo con ArcFace...</span>`;
+
+      try {
+        const res = await fetch("/api/persons/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.detail || "Error al procesar las fotografías.");
+        }
+
+        showAlert(data.message, false);
+        setTimeout(() => {
+          closeRegisterModal();
+          updateStatus();
+        }, 1200);
+
+      } catch (err) {
+        showAlert(err.message, true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Guardar y Procesar Biometría</span>`;
+      }
+    }
 
     function reloadStream() {
       videoFeed.src = "/api/stream/video_feed?t=" + new Date().getTime();
@@ -440,12 +907,10 @@
         if (!res.ok) return;
         const data = await res.json();
 
-        // Actualizar FPS
         if (data.fps !== undefined) {
           fpsBadge.textContent = `FPS: ${data.fps}`;
         }
 
-        // Actualizar lista de personas autorizadas
         if (data.registered_persons) {
           personsCount.textContent = `(${data.registered_persons.length})`;
           personsList.innerHTML = data.registered_persons.map(name => `
@@ -459,7 +924,6 @@
           `).join("") || '<li style="color: var(--text-muted); font-size: 0.8rem;">No hay personas en el catálogo</li>';
         }
 
-        // Actualizar banner de detección
         const dets = data.current_detections || [];
         if (dets.length === 0) {
           detectionBanner.className = "detection-banner banner-idle";
@@ -483,7 +947,6 @@
 
     function addLog(name, confidence, isAuth) {
       const now = Date.now();
-      // Evitar saturar el historial si es la misma persona cada 3 segundos
       if (lastLoggedName === name && (now - lastLogTime) < 3000) {
         return;
       }
@@ -522,10 +985,8 @@
       }
     }
 
-    // Polling de estado cada 500 ms
     setInterval(updateStatus, 500);
     updateStatus();
   </script>
 </body>
 </html>
-
