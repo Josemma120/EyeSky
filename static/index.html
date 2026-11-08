@@ -111,9 +111,9 @@
       flex: 1;
       padding: 1.5rem 2rem;
       display: grid;
-      grid-template-columns: 1fr 380px;
+      grid-template-columns: 1fr 390px;
       gap: 1.5rem;
-      max-width: 1400px;
+      max-width: 1440px;
       margin: 0 auto;
       width: 100%;
     }
@@ -241,12 +241,31 @@
       justify-content: space-between;
     }
 
+    .quota-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      background: #0f172a;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      border: 1px solid var(--border);
+    }
+
+    .quota-badge {
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+    }
+
     .person-list {
       list-style: none;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      max-height: 220px;
+      max-height: 240px;
       overflow-y: auto;
     }
 
@@ -254,7 +273,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.6rem 0.85rem;
+      padding: 0.65rem 0.85rem;
       background: #1e293b;
       border-radius: 8px;
       font-size: 0.85rem;
@@ -266,8 +285,8 @@
     }
 
     .person-avatar {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: var(--primary);
       color: #fff;
@@ -282,6 +301,27 @@
       display: flex;
       align-items: center;
       gap: 0.6rem;
+    }
+
+    .person-tags {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .tag-role {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      background: #334155;
+      color: #cbd5e1;
+      width: fit-content;
+    }
+
+    .tag-code {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: monospace;
     }
 
     .log-list {
@@ -343,18 +383,17 @@
       background: var(--primary-hover);
     }
 
-    .btn-danger-icon {
+    .btn-del {
       background: transparent;
       border: none;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 0.9rem;
       padding: 0.2rem 0.4rem;
       border-radius: 4px;
-      transition: all 0.2s;
+      font-size: 0.9rem;
     }
 
-    .btn-danger-icon:hover {
+    .btn-del:hover {
       color: var(--danger);
       background: rgba(239, 68, 68, 0.15);
     }
@@ -384,12 +423,13 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       animation: modalSlide 0.25s ease-out;
+      max-height: 90vh;
     }
 
     @keyframes modalSlide {
@@ -430,13 +470,20 @@
       padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 1.2rem;
+      gap: 1rem;
+      overflow-y: auto;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      gap: 0.35rem;
     }
 
     .form-label {
@@ -445,18 +492,18 @@
       color: var(--text);
     }
 
-    .form-input {
+    .form-input, .form-select {
       background: #0f172a;
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 0.65rem 0.85rem;
+      padding: 0.6rem 0.8rem;
       color: var(--text);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       outline: none;
       transition: border-color 0.2s;
     }
 
-    .form-input:focus {
+    .form-input:focus, .form-select:focus {
       border-color: var(--primary);
     }
 
@@ -464,12 +511,11 @@
     .drop-zone {
       border: 2px dashed var(--border);
       border-radius: 10px;
-      padding: 1.5rem 1rem;
+      padding: 1.25rem 1rem;
       text-align: center;
       background: #0f172a;
       cursor: pointer;
       transition: all 0.2s;
-      position: relative;
     }
 
     .drop-zone:hover, .drop-zone.dragover {
@@ -478,8 +524,8 @@
     }
 
     .drop-zone-icon {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
+      font-size: 1.8rem;
+      margin-bottom: 0.4rem;
     }
 
     .drop-zone-text {
@@ -488,17 +534,16 @@
     }
 
     .drop-zone-subtext {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: #64748b;
       margin-top: 0.25rem;
     }
 
-    /* Previews */
     .preview-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
       gap: 0.5rem;
-      max-height: 160px;
+      max-height: 150px;
       overflow-y: auto;
       margin-top: 0.5rem;
     }
@@ -561,8 +606,10 @@
     .alert-box {
       padding: 0.75rem 1rem;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       display: none;
+      line-height: 1.4;
+      white-space: pre-line;
     }
 
     .alert-error {
@@ -576,6 +623,16 @@
       border: 1px solid rgba(16, 185, 129, 0.3);
       color: #6ee7b7;
     }
+
+    .criteria-box {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
@@ -586,7 +643,7 @@
       <div class="brand-logo">👁️</div>
       <div>
         <h1>EyeSky</h1>
-        <p>Sistema Inteligente de Seguridad y Reconocimiento Facial</p>
+        <p>Sistema Inteligente de Seguridad y Reconocimiento Facial (Edge-to-Cloud)</p>
       </div>
     </div>
     <div class="header-badges">
@@ -636,9 +693,15 @@
           <span id="personsCount" style="color: var(--text-muted); font-size: 0.8rem;">(0)</span>
         </div>
 
-        <button class="btn btn-primary" onclick="openRegisterModal()" style="width: 100%;">
+        <!-- Indicador de Cupo por Domicilio (Máx 6) -->
+        <div class="quota-info">
+          <span>Cupo Domicilio 1:</span>
+          <span id="domicileQuota" class="quota-badge">0 / 6 autorizados</span>
+        </div>
+
+        <button id="openModalBtn" class="btn btn-primary" onclick="openRegisterModal()" style="width: 100%;">
           <span>➕</span>
-          <span>Registrar Nueva Persona</span>
+          <span>Registrar Persona Autorizada</span>
         </button>
 
         <ul id="personsList" class="person-list">
@@ -660,7 +723,7 @@
     </aside>
   </main>
 
-  <!-- Modal para Registrar Persona con Fotos -->
+  <!-- Modal para Registrar Persona con Fotos (Criterios Taiga HU01, HU02, HU03) -->
   <div id="registerModal" class="modal-overlay" onclick="closeModalOnBackdrop(event)">
     <div class="modal">
       <div class="modal-header">
@@ -675,21 +738,56 @@
         <div class="modal-body">
           <div id="modalAlert" class="alert-box"></div>
 
+          <!-- Nombre Completo -->
           <div class="form-group">
-            <label class="form-label" for="personName">Nombre completo o identificador *</label>
-            <input type="text" id="personName" class="form-input" placeholder="Ej. Emmanuel, Janeth, Moises" required autocomplete="off">
+            <label class="form-label" for="personName">Nombre completo *</label>
+            <input type="text" id="personName" class="form-input" placeholder="Ej. Gómez Barrera José Emmanuel" required autocomplete="off">
           </div>
 
+          <!-- Fila: Rol y Código Único -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="personRole">Rol o parentesco *</label>
+              <select id="personRole" class="form-select" required>
+                <option value="Residente">Residente</option>
+                <option value="Familiar">Familiar</option>
+                <option value="Empleado">Empleado</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="personCode">Identificador único *</label>
+              <input type="text" id="personCode" class="form-input" placeholder="Ej. DOM-001" required autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Domicilio -->
+          <div class="form-group">
+            <label class="form-label" for="personDomicile">Domicilio asignado (Límite máx. 6) *</label>
+            <input type="text" id="personDomicile" class="form-input" value="Domicilio 1" required>
+          </div>
+
+          <!-- Fotos Requeridas -->
           <div class="form-group">
             <label class="form-label">
-              Fotografías del rostro (Mínimo 4 obligatorias) *
-              <span id="photoCountBadge" style="font-size: 0.8rem; font-weight: 700; color: var(--warning); margin-left: 0.5rem;">(0/4 seleccionadas)</span>
+              Fotografías del rostro (Mínimo 5 obligatorias) *
+              <span id="photoCountBadge" style="font-size: 0.8rem; font-weight: 700; color: var(--warning); margin-left: 0.5rem;">(0/5 seleccionadas)</span>
             </label>
             <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
               <div class="drop-zone-icon">📸</div>
-              <div class="drop-zone-text">Haz clic o arrastra fotos aquí (mínimo 4)</div>
-              <div class="drop-zone-subtext">JPG, PNG, WEBP o HEIC. Se descartarán automáticamente fotos sin rostro.</div>
-              <input type="file" id="fileInput" multiple accept="image/*,.heic" style="display: none;" onchange="handleFilesSelected(this.files)">
+              <div class="drop-zone-text">Haz clic o arrastra al menos 5 fotos aquí</div>
+              <div class="drop-zone-subtext">Formatos: JPG o PNG (máximo 5 MB por archivo)</div>
+              <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" style="display: none;" onchange="handleFilesSelected(this.files)">
+            </div>
+
+            <!-- Criterios de Calidad Biometría Taiga -->
+            <div class="criteria-box">
+              <strong>Requisitos de calidad biométrica (Taiga):</strong>
+              <ul style="padding-left: 1rem; margin-top: 0.25rem;">
+                <li>Al menos 5 fotos: frontal, giro izq., giro der., con/sin sonrisa.</li>
+                <li>Exactamente <strong>1 solo rostro</strong> visible por fotografía.</li>
+                <li>Rostro de al menos <strong>150x150 px</strong> e imagen de <strong>640x480 px</strong>.</li>
+                <li>Iluminación uniforme, nítida y sin sombras fuertes ni contraluz.</li>
+              </ul>
             </div>
 
             <!-- Previsualización de fotos -->
@@ -700,7 +798,7 @@
         <div class="modal-footer">
           <button type="button" class="btn" onclick="closeRegisterModal()">Cancelar</button>
           <button type="submit" id="submitBtn" class="btn btn-primary">
-            <span>Guardar y Procesar Biometría</span>
+            <span>Guardar y Validar Biometría</span>
           </button>
         </div>
       </form>
@@ -713,6 +811,8 @@
     const detectionText = document.getElementById("detectionText");
     const personsList = document.getElementById("personsList");
     const personsCount = document.getElementById("personsCount");
+    const domicileQuota = document.getElementById("domicileQuota");
+    const openModalBtn = document.getElementById("openModalBtn");
     const logList = document.getElementById("logList");
     const fpsBadge = document.getElementById("fpsBadge");
     const cameraStatus = document.getElementById("cameraStatus");
@@ -720,26 +820,49 @@
     // Modal elements
     const registerModal = document.getElementById("registerModal");
     const personNameInput = document.getElementById("personName");
+    const personRoleInput = document.getElementById("personRole");
+    const personCodeInput = document.getElementById("personCode");
+    const personDomicileInput = document.getElementById("personDomicile");
     const fileInput = document.getElementById("fileInput");
     const previewGrid = document.getElementById("previewGrid");
     const dropZone = document.getElementById("dropZone");
     const submitBtn = document.getElementById("submitBtn");
     const modalAlert = document.getElementById("modalAlert");
+    const photoCountBadge = document.getElementById("photoCountBadge");
 
     let selectedFiles = [];
     let lastLoggedName = null;
     let lastLogTime = 0;
+    let currentAuthorizedCount = 0;
 
     // Control del Modal
-    function openRegisterModal() {
+    async function openRegisterModal() {
       selectedFiles = [];
       personNameInput.value = "";
       previewGrid.innerHTML = "";
+      hideAlert();
+
+      // Consultar estadísticas de cupo
+      try {
+        const res = await fetch("/api/persons/domicile-stats?domicile=" + encodeURIComponent(personDomicileInput.value || "Domicilio 1"));
+        if (res.ok) {
+          const stats = await res.json();
+          if (stats.limit_reached) {
+            alert(`Límite alcanzado: Se ha alcanzado el límite máximo de ${stats.max_limit} personas autorizadas para este domicilio.`);
+            return;
+          }
+          // Sugerir código único
+          personCodeInput.value = `DOM-${String(stats.authorized_count + 1).padStart(3, '0')}`;
+        }
+      } catch (e) {
+        personCodeInput.value = "DOM-001";
+      }
+
       if (photoCountBadge) {
-        photoCountBadge.textContent = "(0/4 seleccionadas)";
+        photoCountBadge.textContent = "(0/5 seleccionadas - faltan 5)";
         photoCountBadge.style.color = "var(--warning)";
       }
-      hideAlert();
+
       registerModal.classList.add("active");
       personNameInput.focus();
     }
@@ -786,17 +909,15 @@
       renderPreviews();
     }
 
-    const photoCountBadge = document.getElementById("photoCountBadge");
-
     function renderPreviews() {
       previewGrid.innerHTML = "";
       const count = selectedFiles.length;
       if (photoCountBadge) {
-        if (count >= 4) {
-          photoCountBadge.textContent = `(${count} seleccionadas - ¡Listo!)`;
+        if (count >= 5) {
+          photoCountBadge.textContent = `(${count} seleccionadas - ¡Cumple mínimo de 5!)`;
           photoCountBadge.style.color = "var(--success)";
         } else {
-          photoCountBadge.textContent = `(${count}/4 seleccionadas - faltan ${4 - count})`;
+          photoCountBadge.textContent = `(${count}/5 seleccionadas - faltan ${5 - count})`;
           photoCountBadge.style.color = "var(--warning)";
         }
       }
@@ -806,11 +927,7 @@
         item.className = "preview-item";
 
         const img = document.createElement("img");
-        if (file.name.toLowerCase().endsWith(".heic")) {
-          img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect fill='%231e293b' width='100' height='100'/><text fill='%2338bdf8' font-size='14' font-family='sans-serif' x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'>HEIC</text></svg>";
-        } else {
-          img.src = URL.createObjectURL(file);
-        }
+        img.src = URL.createObjectURL(file);
 
         const rm = document.createElement("button");
         rm.className = "preview-remove";
@@ -843,24 +960,35 @@
       hideAlert();
 
       const name = personNameInput.value.trim();
+      const role = personRoleInput.value;
+      const code = personCodeInput.value.trim();
+      const domicile = personDomicileInput.value.trim();
+
       if (!name) {
-        showAlert("Por favor ingresa el nombre de la persona.", true);
+        showAlert("El nombre de la persona es obligatorio.", true);
+        return;
+      }
+      if (!code) {
+        showAlert("El identificador único es obligatorio.", true);
         return;
       }
 
-      if (selectedFiles.length < 4) {
-        showAlert(`Requisito forzoso: Debes seleccionar al menos 4 fotografías (has seleccionado ${selectedFiles.length}).`, true);
+      if (selectedFiles.length < 5) {
+        showAlert(`Criterio de Taiga no cumplido: Debes seleccionar al menos 5 fotografías para registrar (has seleccionado ${selectedFiles.length}).`, true);
         return;
       }
 
       const formData = new FormData();
       formData.append("name", name);
+      formData.append("role", role);
+      formData.append("unique_code", code);
+      formData.append("domicile", domicile);
       selectedFiles.forEach(file => {
         formData.append("photos", file);
       });
 
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `<span class="spinner"></span> <span>Extrayendo con ArcFace...</span>`;
+      submitBtn.innerHTML = `<span class="spinner"></span> <span>Evaluando calidad y ArcFace...</span>`;
 
       try {
         const res = await fetch("/api/persons/upload", {
@@ -878,13 +1006,30 @@
         setTimeout(() => {
           closeRegisterModal();
           updateStatus();
-        }, 1200);
+        }, 1500);
 
       } catch (err) {
         showAlert(err.message, true);
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<span>Guardar y Procesar Biometría</span>`;
+        submitBtn.innerHTML = `<span>Guardar y Validar Biometría</span>`;
+      }
+    }
+
+    async function deletePerson(personId, personName) {
+      if (!confirm(`¿Estás seguro de eliminar a '${personName}' de las personas autorizadas?`)) {
+        return;
+      }
+      try {
+        const res = await fetch(`/api/persons/${personId}`, { method: "DELETE" });
+        const data = await res.json();
+        if (res.ok) {
+          updateStatus();
+        } else {
+          alert(data.detail || "Error al eliminar");
+        }
+      } catch (e) {
+        alert("Error al conectar con el servidor.");
       }
     }
 
@@ -903,41 +1048,78 @@
 
     async function updateStatus() {
       try {
-        const res = await fetch("/api/stream/status");
-        if (!res.ok) return;
-        const data = await res.json();
-
-        if (data.fps !== undefined) {
-          fpsBadge.textContent = `FPS: ${data.fps}`;
-        }
-
-        if (data.registered_persons) {
-          personsCount.textContent = `(${data.registered_persons.length})`;
-          personsList.innerHTML = data.registered_persons.map(name => `
-            <li class="person-item">
-              <div class="person-info">
-                <div class="person-avatar">${name.charAt(0).toUpperCase()}</div>
-                <strong>${name}</strong>
-              </div>
-              <span style="color: var(--success); font-size: 0.75rem; font-weight: 600;">Autorizado</span>
-            </li>
-          `).join("") || '<li style="color: var(--text-muted); font-size: 0.8rem;">No hay personas en el catálogo</li>';
-        }
-
-        const dets = data.current_detections || [];
-        if (dets.length === 0) {
-          detectionBanner.className = "detection-banner banner-idle";
-          detectionBanner.innerHTML = "<span>⚪</span> <span>Esperando rostros frente a la cámara...</span>";
-        } else {
-          const first = dets[0];
-          if (first.is_authorized) {
-            detectionBanner.className = "detection-banner banner-match";
-            detectionBanner.innerHTML = `<span>✅</span> <span><strong>${first.name}</strong> detectado (${first.confidence}% coincidencia)</span>`;
-            addLog(first.name, first.confidence, true);
+        // 1. Estadísticas de Domicilio
+        const statsRes = await fetch("/api/persons/domicile-stats?domicile=Domicilio%201");
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          currentAuthorizedCount = stats.authorized_count;
+          domicileQuota.textContent = `${stats.authorized_count} / ${stats.max_limit} autorizados`;
+          if (stats.limit_reached) {
+            domicileQuota.style.background = "rgba(239, 68, 68, 0.2)";
+            domicileQuota.style.color = "var(--danger)";
+            openModalBtn.title = "Límite alcanzado (máx. 6 personas)";
           } else {
-            detectionBanner.className = "detection-banner banner-unknown";
-            detectionBanner.innerHTML = `<span>⚠️</span> <span><strong>Persona No Reconocida</strong> detectada (${first.confidence}% similitud)</span>`;
-            addLog("Desconocido", first.confidence, false);
+            domicileQuota.style.background = "rgba(59, 130, 246, 0.2)";
+            domicileQuota.style.color = "#60a5fa";
+            openModalBtn.title = "";
+          }
+        }
+
+        // 2. Lista de Personas en BD
+        const personsRes = await fetch("/api/persons/");
+        if (personsRes.ok) {
+          const persons = await personsRes.json();
+          personsCount.textContent = `(${persons.length})`;
+
+          if (persons.length === 0) {
+            personsList.innerHTML = '<li style="color: var(--text-muted); font-size: 0.8rem;">No hay personas registradas</li>';
+          } else {
+            personsList.innerHTML = persons.map(p => `
+              <li class="person-item">
+                <div class="person-info">
+                  <div class="person-avatar">${p.name.charAt(0).toUpperCase()}</div>
+                  <div class="person-tags">
+                    <strong>${p.name}</strong>
+                    <div style="display:flex; gap:0.3rem; align-items:center;">
+                      <span class="tag-role">${p.role}</span>
+                      <span class="tag-code">${p.unique_code}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                  <span style="color: ${p.status === 'Autorizada' ? 'var(--success)' : 'var(--warning)'}; font-size: 0.72rem; font-weight: 700;">
+                    ${p.status}
+                  </span>
+                  <button class="btn-del" onclick="deletePerson(${p.id}, '${p.name}')" title="Eliminar persona">&times;</button>
+                </div>
+              </li>
+            `).join("");
+          }
+        }
+
+        // 3. Estado de la cámara y FPS
+        const streamRes = await fetch("/api/stream/status");
+        if (streamRes.ok) {
+          const data = await streamRes.json();
+          if (data.fps !== undefined) {
+            fpsBadge.textContent = `FPS: ${data.fps}`;
+          }
+
+          const dets = data.current_detections || [];
+          if (dets.length === 0) {
+            detectionBanner.className = "detection-banner banner-idle";
+            detectionBanner.innerHTML = "<span>⚪</span> <span>Esperando rostros frente a la cámara...</span>";
+          } else {
+            const first = dets[0];
+            if (first.is_authorized) {
+              detectionBanner.className = "detection-banner banner-match";
+              detectionBanner.innerHTML = `<span>✅</span> <span><strong>${first.name}</strong> detectado (${first.confidence}% coincidencia)</span>`;
+              addLog(first.name, first.confidence, true);
+            } else {
+              detectionBanner.className = "detection-banner banner-unknown";
+              detectionBanner.innerHTML = `<span>⚠️</span> <span><strong>Persona No Reconocida</strong> detectada (${first.confidence}% similitud)</span>`;
+              addLog("Desconocido", first.confidence, false);
+            }
           }
         }
       } catch (err) {
@@ -985,7 +1167,7 @@
       }
     }
 
-    setInterval(updateStatus, 500);
+    setInterval(updateStatus, 600);
     updateStatus();
   </script>
 </body>

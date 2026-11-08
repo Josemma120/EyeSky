@@ -5,11 +5,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.core.config import settings
-from app.db.database import engine, Base
+from app.db.database import engine, Base, ensure_schema_migrations
 from app.routers import persons, recognize, events, stream
 
-# Crear automáticamente las tablas en SQLite al iniciar
+# Crear automáticamente las tablas en SQLite y asegurar columnas nuevas
 Base.metadata.create_all(bind=engine)
+ensure_schema_migrations()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
