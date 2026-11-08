@@ -324,6 +324,11 @@
       font-family: monospace;
     }
 
+    .tag-domicile {
+      font-size: 0.65rem;
+      color: #93c5fd;
+    }
+
     .log-list {
       list-style: none;
       display: flex;
@@ -707,7 +712,7 @@
         <ul id="personsList" class="person-list">
           <li style="color: var(--text-muted); font-size: 0.8rem;">Cargando catálogo...</li>
         </ul>
-        <button class="btn" onclick="reloadCatalog()">🔄 Recargar Catálogo</button>
+        <button class="btn" onclick="reloadCatalog()">🔄 Sincronizar Dataset y Catálogo</button>
       </div>
 
       <!-- Panel de Eventos / Log en tiempo real -->
@@ -1083,6 +1088,7 @@
                     <div style="display:flex; gap:0.3rem; align-items:center;">
                       <span class="tag-role">${p.role}</span>
                       <span class="tag-code">${p.unique_code}</span>
+                      <span class="tag-domicile">${p.domicile}</span>
                     </div>
                   </div>
                 </div>
@@ -1158,12 +1164,25 @@
 
     async function reloadCatalog() {
       try {
+        // 1. Importar a la BD las personas nuevas del dataset
+        const syncRes = await fetch("/api/persons/sync-dataset", { method: "POST" });
+        const syncData = await syncRes.json();
+        if (!syncRes.ok) {
+          throw new Error(syncData.detail || "No se pudo sincronizar el dataset");
+        }
+
+        // 2. Recargar las firmas biométricas en la cámara
         const res = await fetch("/api/stream/reload", { method: "POST" });
         const data = await res.json();
-        alert(data.message + ": " + (data.registered.join(", ") || "Ninguna"));
+
+        alert(
+          syncData.message +
+          "\nCatálogo biométrico: " +
+          (data.registered.join(", ") || "Ninguna")
+        );
         updateStatus();
       } catch (e) {
-        alert("Error al recargar catálogo");
+        alert("Error al sincronizar: " + e.message);
       }
     }
 

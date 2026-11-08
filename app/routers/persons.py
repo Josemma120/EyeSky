@@ -15,6 +15,7 @@ from app.services.arcface_service import (
     remove_person_biometrics,
     MIN_FACES_REQUIRED
 )
+from app.services.dataset_sync import sync_dataset_to_db
 
 router = APIRouter(prefix="/api/persons", tags=["Personas Autorizadas"])
 
@@ -94,6 +95,23 @@ def generate_default_code(db: Session, domicile: str) -> str:
 def list_persons(db: Session = Depends(get_db)):
     """Obtiene la lista de todas las personas registradas en el sistema (HU04)."""
     return db.query(Person).order_by(Person.id.asc()).all()
+
+@router.post("/sync-dataset")
+def sync_existing_dataset(db: Session = Depends(get_db)):
+    """
+    Importa a la base de datos las personas que ya existen en `dataset/` o en
+    `data/known_faces.pkl`. No duplica registros y es seguro ejecutarlo varias veces.
+    """
+    result = sync_dataset_to_db(db)
+    return {
+        "ok": True,
+        "message": (
+            f"Sincronización completada: {len(result['created'])} nueva(s), "
+            f"{len(result['updated'])} actualizada(s), "
+            f"{len(result['skipped'])} ya existente(s)."
+        ),
+        **result,
+    }
 
 @router.get("/domicile-stats")
 def get_domicile_stats(domicile: str = "Domicilio 1", db: Session = Depends(get_db)):

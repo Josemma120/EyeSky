@@ -5,12 +5,26 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from app.core.config import settings
-from app.db.database import engine, Base, ensure_schema_migrations
+from app.db.database import engine, Base, SessionLocal, ensure_schema_migrations
 from app.routers import persons, recognize, events, stream
+from app.services.dataset_sync import sync_dataset_to_db
 
 # Crear automáticamente las tablas en SQLite y asegurar columnas nuevas
 Base.metadata.create_all(bind=engine)
 ensure_schema_migrations()
+
+# Importar a la base de datos las personas que ya existan en dataset/ o known_faces.pkl
+try:
+    with SessionLocal() as db:
+        sync_result = sync_dataset_to_db(db)
+    if sync_result["created"] or sync_result["updated"]:
+        print(
+            "[DatasetSync] Personas sincronizadas: "
+            f"{len(sync_result['created'])} nuevas, "
+            f"{len(sync_result['updated'])} actualizadas."
+        )
+except Exception as e:
+    print(f"[DatasetSync] No se pudo sincronizar el dataset al arrancar: {e}")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

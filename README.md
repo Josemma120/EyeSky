@@ -59,6 +59,8 @@ Copy-Item .env.example .env
    ```
    *(Esto generará el archivo `data/known_faces.pkl` con los vectores biométricos).*
 
+3. Al iniciar el servidor, las personas de `dataset/` y de `known_faces.pkl` se importan automáticamente a la base de datos y aparecen en **Personas Autorizadas**. Si agregas personas con el servidor ya encendido, usa el botón **🔄 Sincronizar Dataset y Catálogo** o el endpoint `POST /api/persons/sync-dataset`.
+
 ---
 
 ## 🖥️ Ejecutar el Sistema (Panel Web)

@@ -86,12 +86,35 @@ def save_catalogo(known_faces):
     for name in known_faces:
         print(f" - {name}")
 
+
+def sync_database():
+    """Refleja en la tabla 'persons' las personas del dataset y del catálogo."""
+    try:
+        from app.db.database import Base, SessionLocal, engine
+        from app.services.dataset_sync import sync_dataset_to_db
+
+        Base.metadata.create_all(bind=engine)
+        with SessionLocal() as db:
+            result = sync_dataset_to_db(db)
+
+        print(
+            "[BD] Personas sincronizadas: "
+            f"{len(result['created'])} nuevas, "
+            f"{len(result['updated'])} actualizadas, "
+            f"{len(result['skipped'])} ya existentes."
+        )
+    except Exception as e:
+        print(f"[BD] No se pudo sincronizar la base de datos: {e}")
+        print("     Al iniciar el servidor se intentará de nuevo automáticamente.")
+
+
 if __name__ == "__main__":
     print("=== REGISTRO DE ROSTROS CON ARCFACE ===")
     app = init_arcface()
     catalog = process_dataset(app)
     if catalog:
         save_catalogo(catalog)
+        sync_database()
         print("\n¡Listo! Ahora puedes ejecutar 'camera_recognition.py' para probar la cámara.")
     else:
         print("\nNo se registraron personas. Agrega fotos a 'dataset/' y vuelve a intentar.")
