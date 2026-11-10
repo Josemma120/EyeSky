@@ -4,7 +4,8 @@ import shutil
 from pathlib import Path
 from typing import List, Optional
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, field_validator
 
@@ -44,6 +45,15 @@ class PersonOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PersonPage(BaseModel):
+    items: List[PersonOut]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+    search: Optional[str] = None
 
 
 # ---- Helpers de Validación ----
@@ -95,6 +105,62 @@ def generate_default_code(db: Session, domicile: str) -> str:
 def list_persons(db: Session = Depends(get_db)):
     """Obtiene la lista de todas las personas registradas en el sistema (HU04)."""
     return db.query(Person).order_by(Person.id.asc()).all()
+
+@router.get("/paginated", response_model=PersonPage)
+def list_persons_paginated(
+    page: int = Query(1, ge=1, description="Número de página, empieza en 1."),
+    page_size: int = Query(10, ge=1, le=100, description="Registros por página (máximo 100)."),
+    search: Optional[str] = Query(
+        None,
+        max_length=100,
+        description="Busca por nombre o identificador único (ej. 'Angel' o 'DOM-001').",
+    ),
+    domicile: Optional[str] = Query(None, max_length=100),
+    status: Optional[str] = Query(None, max_length=30),
+    db: Session = Depends(get_db),
+):
+    """
+    Listado paginado de personas autorizadas con búsqueda por nombre o código.
+
+    Ejemplos:
+    - `/api/persons/paginated?page=1&page_size=5`
+    - `/api/persons/paginated?search=Angel`
+    - `/api/persons/paginated?domicile=Domicilio%202`
+    """
+    query = db.query(Person)
+
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        query = query.filter(
+            or_(
+                Person.name.ilike(term),
+                Person.unique_code.ilike(term),
+            )
+        )
+
+    if domicile:
+        query = query.filter(Person.domicile == domicile)
+
+    if status:
+        query = query.filter(Person.status == status)
+
+    total = query.count()
+    items = (
+        query.order_by(Person.id.asc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+    total_pages = (total + page_size - 1) // page_size if total else 0
+
+    return PersonPage(
+        items=items,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=total_pages,
+        search=search.strip() if search else None,
+    )
 
 @router.post("/sync-dataset")
 def sync_existing_dataset(db: Session = Depends(get_db)):

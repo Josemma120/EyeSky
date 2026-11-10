@@ -88,3 +88,19 @@ python camera_recognition.py
 ## 📘 Documentación de la API REST
 FastAPI genera automáticamente la documentación interactiva Swagger en:
 👉 **[http://localhost:8000/docs](http://localhost:8000/docs)**
+
+### Listado paginado y búsqueda de personas
+
+```http
+GET /api/persons/paginated?page=1&page_size=5&search=Angel
+```
+
+Parámetros opcionales:
+
+| Parámetro | Descripción |
+|-----------|-------------|
+| `page` | Número de página (inicia en 1). |
+| `page_size` | Registros por página (1 a 100). |
+| `search` | Busca por nombre o identificador único (`DOM-001`). |
+| `domicile` | Filtra por domicilio exacto. |
+| `status` | Filtra por estado (`Autorizada` o `Pendiente`). |
