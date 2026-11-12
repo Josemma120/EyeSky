@@ -13,7 +13,8 @@ __pycache__/
 # Variables de entorno con posibles claves o rutas locales
 .env
 GUIA_TAREAS.md
-
+*.pdf
+GUIA_TAREAS_DATASET.md
 # Base de datos local y binarios temporales
 *.db
 *.sqlite3

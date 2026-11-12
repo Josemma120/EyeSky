@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 
 from app.core.config import settings
 from app.db.database import engine, Base, SessionLocal, ensure_schema_migrations
-from app.routers import persons, recognize, events, stream
+from app.routers import persons, recognize, events, stream, dataset
 from app.services.dataset_sync import sync_dataset_to_db
 
 # Crear automáticamente las tablas en SQLite y asegurar columnas nuevas
@@ -46,6 +46,7 @@ app.include_router(stream.router)
 app.include_router(persons.router)
 app.include_router(recognize.router)
 app.include_router(events.router)
+app.include_router(dataset.router)
 
 # Servir archivos estáticos del panel web
 static_dir = Path("static")
