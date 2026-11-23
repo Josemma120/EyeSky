@@ -13,6 +13,10 @@ class EventCreate(BaseModel):
     person_name: Optional[str] = None
     confidence: Optional[float] = None
     image_path: Optional[str] = None
+    status: str = "confirmed"
+    detection_count: int = 1
+    first_seen: Optional[datetime] = None
+    confirmed_at: Optional[datetime] = None
 
 class EventOut(BaseModel):
     id: int
@@ -20,6 +24,10 @@ class EventOut(BaseModel):
     is_recognized: bool
     person_name: Optional[str] = None
     confidence: Optional[float] = None
+    status: str = "confirmed"
+    detection_count: int = 1
+    first_seen: Optional[datetime] = None
+    confirmed_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -31,12 +39,16 @@ def list_events(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=EventOut, status_code=201)
 def create_event(event_in: EventCreate, db: Session = Depends(get_db)):
-    """Registra manualmente un evento de detección o alerta."""
+    """Registra un evento de detección confirmada (HU06) o manual."""
     new_event = Event(
         is_recognized=event_in.is_recognized,
         person_name=event_in.person_name,
         confidence=event_in.confidence,
-        image_path=event_in.image_path
+        image_path=event_in.image_path,
+        status=event_in.status,
+        detection_count=event_in.detection_count,
+        first_seen=event_in.first_seen,
+        confirmed_at=event_in.confirmed_at
     )
     db.add(new_event)
     db.commit()

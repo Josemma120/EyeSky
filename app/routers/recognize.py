@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List
-from app.services.arcface_service import calculate_similarity, is_match, DEFAULT_THRESHOLD
+from app.core.config import settings
+from app.services.arcface_service import calculate_similarity, is_match
 import numpy as np
 
 router = APIRouter(prefix="/api/recognize", tags=["Reconocimiento Facial"])
@@ -9,7 +10,8 @@ router = APIRouter(prefix="/api/recognize", tags=["Reconocimiento Facial"])
 class CompareVectorsIn(BaseModel):
     vector1: List[float]
     vector2: List[float]
-    threshold: float = DEFAULT_THRESHOLD
+    # Umbral único de similitud (HU05): se lee de la configuración.
+    threshold: float = settings.SIMILARITY_THRESHOLD
 
 @router.get("/status")
 def recognition_status():
@@ -17,7 +19,7 @@ def recognition_status():
     return {
         "status": "ready",
         "model": "ArcFace",
-        "default_threshold": DEFAULT_THRESHOLD,
+        "default_threshold": settings.SIMILARITY_THRESHOLD,
         "description": "Comparación por similitud de coseno sobre embeddings de 512 dimensiones"
     }
 

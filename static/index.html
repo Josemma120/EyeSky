@@ -213,6 +213,13 @@
       animation: alertPulse 1.5s infinite;
     }
 
+    /* HU06: detección vista pero aún sin confirmar */
+    .banner-pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
     @keyframes alertPulse {
       0%, 100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
       50% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
@@ -917,6 +924,17 @@
           <li class="log-item" style="color: var(--text-muted);">Sin eventos registrados aún.</li>
         </ul>
       </div>
+
+      <!-- Panel de Historial de Eventos Confirmados (HU06) -->
+      <div class="panel">
+        <div class="panel-title">
+          <span>🕘 Historial de Eventos</span>
+          <span style="color: var(--text-muted); font-size: 0.75rem;">Confirmados</span>
+        </div>
+        <ul id="historyList" class="log-list">
+          <li class="log-item" style="color: var(--text-muted);">Sin eventos confirmados aún.</li>
+        </ul>
+      </div>
     </aside>
   </main>
 
@@ -1055,6 +1073,7 @@
     const domicileQuota = document.getElementById("domicileQuota");
     const openModalBtn = document.getElementById("openModalBtn");
     const logList = document.getElementById("logList");
+    const historyList = document.getElementById("historyList");
     const fpsBadge = document.getElementById("fpsBadge");
     const cameraStatus = document.getElementById("cameraStatus");
 
@@ -1483,7 +1502,12 @@
             detectionBanner.innerHTML = "<span>⚪</span> <span>Esperando rostros frente a la cámara...</span>";
           } else {
             const first = dets[0];
-            if (first.is_authorized) {
+            if (first.status === "pending") {
+              // HU06: rostro visto pero aún sin confirmar; no genera evento.
+              const count = first.detection_count || 0;
+              detectionBanner.className = "detection-banner banner-pending";
+              detectionBanner.innerHTML = `<span>⏳</span> <span>Verificando rostro… (${count}/3 ciclos)</span>`;
+            } else if (first.is_authorized) {
               detectionBanner.className = "detection-banner banner-match";
               detectionBanner.innerHTML = `<span>✅</span> <span><strong>${first.name}</strong> detectado (${first.confidence}% coincidencia)</span>`;
               addLog(first.name, first.confidence, true);
@@ -1552,8 +1576,40 @@
       }
     }
 
+    // HU06: historial de eventos confirmados, desde la base de datos.
+    async function fetchEventHistory() {
+      try {
+        const res = await fetch("/api/events/");
+        if (!res.ok) return;
+        const events = await res.json();
+        if (!events.length) {
+          historyList.innerHTML = '<li class="log-item" style="color: var(--text-muted);">Sin eventos confirmados aún.</li>';
+          return;
+        }
+        historyList.innerHTML = events.map(ev => {
+          const when = ev.timestamp ? new Date(ev.timestamp).toLocaleString() : "";
+          const label = ev.is_recognized ? `✓ ${ev.person_name || "Persona"}` : "⚠ Desconocido";
+          const conf = (ev.confidence !== null && ev.confidence !== undefined) ? `${ev.confidence}%` : "";
+          const cycles = ev.detection_count ? `${ev.detection_count} ciclos` : "";
+          return `
+            <li class="log-item ${ev.is_recognized ? 'match' : 'unknown'}">
+              <div>
+                <strong>${label}</strong>
+                <span style="color: var(--text-muted); margin-left: 0.5rem;">${conf}</span>
+                <span style="color: var(--text-muted); margin-left: 0.5rem;">${cycles}</span>
+              </div>
+              <span style="color: var(--text-muted); font-size: 0.7rem;">${when}</span>
+            </li>`;
+        }).join("");
+      } catch (err) {
+        console.error("Error al obtener historial:", err);
+      }
+    }
+
     setInterval(updateStatus, 600);
     updateStatus();
+    setInterval(fetchEventHistory, 5000);
+    fetchEventHistory();
   </script>
 </body>
 </html>

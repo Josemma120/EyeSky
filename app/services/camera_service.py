@@ -20,6 +20,7 @@ import cv2
 import numpy as np
 
 from app.core.config import settings
+from app.services.detection_tracker import DetectionTracker
 
 CATALOG_PATH = Path("data/known_faces.pkl")
 
@@ -29,9 +30,17 @@ class CameraService:
         if self.camera_source.isdigit():
             self.camera_source = int(self.camera_source)
 
-        self.threshold = float(os.getenv("SIMILARITY_THRESHOLD", 0.55))
+        # Umbral único de similitud (HU05): se lee de la configuración.
+        self.threshold = settings.SIMILARITY_THRESHOLD
         # Frecuencia de inferencia: procesar 1 de cada N fotogramas (5 por defecto = ~3-4 veces por segundo)
         self.inference_interval = int(os.getenv("INFERENCE_INTERVAL", "5"))
+        # HU06: seguimiento de detecciones; solo las confirmadas generan
+        # un evento. Se alimenta solo en ciclos de inferencia.
+        self.tracker = DetectionTracker(
+            confirm_frames=settings.DETECTION_CONFIRM_FRAMES,
+            confirm_window_seconds=settings.DETECTION_CONFIRM_WINDOW_SECONDS,
+            cooldown_seconds=settings.DETECTION_COOLDOWN_SECONDS,
+        )
         self.known_faces: Dict[str, np.ndarray] = {}
         self.face_app = None
 
@@ -112,6 +121,29 @@ class CameraService:
             self.thread.join(timeout=2.0)
         self.camera_active = False
 
+    def _emit_event(self, confirmed: dict):
+        """
+        Registra en BD una detección confirmada (HU06). Un error de BD
+        nunca debe romper el bucle de captura.
+        """
+        try:
+            from app.db.database import SessionLocal
+            from app.db.models import Event
+
+            with SessionLocal() as db:
+                db.add(Event(
+                    is_recognized=confirmed["is_recognized"],
+                    person_name=confirmed["name"],
+                    confidence=round(confirmed["confidence"], 1),
+                    status="confirmed",
+                    detection_count=confirmed["detection_count"],
+                    first_seen=confirmed["first_seen"],
+                    confirmed_at=confirmed["confirmed_at"],
+                ))
+                db.commit()
+        except Exception as e:
+            print(f"[CameraService] No se pudo registrar el evento: {e}")
+
     def _capture_loop(self):
         """Bucle continuo de captura y procesamiento."""
         cap = cv2.VideoCapture(self.camera_source)
@@ -161,6 +193,21 @@ class CameraService:
                     print(f"[CameraService] Error en detección: {e}")
                     cached_faces = []
 
+                # HU06: alimentar el tracker SOLO en ciclos de inferencia.
+                # Una detección aislada no genera evento; solo las que se
+                # confirman tras varios ciclos consecutivos lo hacen.
+                observations = []
+                for face in cached_faces:
+                    obs_name, obs_score = self._identify(face.embedding)
+                    observations.append({
+                        "name": obs_name,
+                        "confidence": round(obs_score * 100, 1),
+                        "is_authorized": obs_name != "Desconocido",
+                        "box": [int(v) for v in face.bbox.astype(int)],
+                    })
+                for confirmed in self.tracker.observe(observations):
+                    self._emit_event(confirmed)
+
             detections_info = []
 
             # Dibujar detecciones sobre el cuadro de visualización
@@ -170,13 +217,23 @@ class CameraService:
 
                 name, score = self._identify(face.embedding)
                 is_authorized = (name != "Desconocido")
-                color = (0, 255, 0) if is_authorized else (0, 0, 255)
+                track = self.tracker.lookup(name, [int(x1), int(y1), int(x2), int(y2)])
+                status = track.status if track else "pending"
+                detection_count = track.detection_count if track else 0
+
+                if status == "confirmed":
+                    color = (0, 255, 0) if is_authorized else (0, 0, 255)
+                    label = f"{name} ({score * 100:.1f}%)"
+                else:
+                    # Pendiente de confirmación (HU06): se dibuja en ámbar
+                    # y no genera evento ni registro.
+                    color = (0, 165, 255)
+                    label = f"{name} ({score * 100:.1f}%) - Verificando..."
 
                 # Bounding box
                 cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
 
                 # Etiqueta
-                label = f"{name} ({score * 100:.1f}%)"
                 y_label = max(y1 - 10, 20)
                 cv2.putText(
                     display_frame,
@@ -193,7 +250,9 @@ class CameraService:
                     "name": name,
                     "confidence": round(score * 100, 1),
                     "is_authorized": is_authorized,
-                    "box": [int(x1), int(y1), int(x2), int(y2)]
+                    "box": [int(x1), int(y1), int(x2), int(y2)],
+                    "status": status,
+                    "detection_count": detection_count
                 })
 
             # Medir FPS cada segundo

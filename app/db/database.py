@@ -43,6 +43,19 @@ def ensure_schema_migrations():
                     if "status" not in cols:
                         cur.execute("ALTER TABLE persons ADD COLUMN status TEXT DEFAULT 'Pendiente'")
                     conn.commit()
+                cur.execute("PRAGMA table_info(events)")
+                event_cols = [c[1] for c in cur.fetchall()]
+
+                if event_cols:
+                    if "status" not in event_cols:
+                        cur.execute("ALTER TABLE events ADD COLUMN status TEXT DEFAULT 'confirmed'")
+                    if "detection_count" not in event_cols:
+                        cur.execute("ALTER TABLE events ADD COLUMN detection_count INTEGER DEFAULT 1")
+                    if "first_seen" not in event_cols:
+                        cur.execute("ALTER TABLE events ADD COLUMN first_seen DATETIME")
+                    if "confirmed_at" not in event_cols:
+                        cur.execute("ALTER TABLE events ADD COLUMN confirmed_at DATETIME")
+                    conn.commit()
                 conn.close()
             except Exception as e:
                 print(f"[Database] Migración ligera: {e}")

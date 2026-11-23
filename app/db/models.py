@@ -24,7 +24,12 @@ class Person(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Event(Base):
-    """Modelo básico para registrar eventos de detección (HU08)."""
+    """
+    Modelo para registrar eventos de detección (HU06, HU08).
+    Solo se registran detecciones confirmadas: una detección aislada no
+    genera un evento. status es 'pending' o 'confirmed'; los eventos
+    guardados por el sistema siempre son 'confirmed'.
+    """
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -33,3 +38,7 @@ class Event(Base):
     person_name = Column(String, nullable=True)
     confidence = Column(Float, nullable=True)
     image_path = Column(String, nullable=True)
+    status = Column(String, nullable=False, default="confirmed")
+    detection_count = Column(Integer, nullable=False, default=1)
+    first_seen = Column(DateTime, nullable=True)
+    confirmed_at = Column(DateTime, nullable=True)

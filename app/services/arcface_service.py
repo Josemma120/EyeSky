@@ -12,15 +12,17 @@ Aplica los criterios de aceptación del sistema:
 - Desglose detallado de motivos de rechazo.
 """
 
-import os
 import pickle
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict, Any
 import cv2
 import numpy as np
 
+from app.core.config import settings
+
 # Constantes de Calidad Biométrica
-DEFAULT_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.55"))
+# Umbral único de similitud (HU05): se lee de la configuración.
+DEFAULT_THRESHOLD = settings.SIMILARITY_THRESHOLD
 MIN_FACES_REQUIRED = 5
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
