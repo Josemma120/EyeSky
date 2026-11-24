@@ -951,8 +951,8 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="personCode">Identificador único *</label>
-              <input type="text" id="personCode" class="form-input" placeholder="Ej. DOM-001" required autocomplete="off">
+              <label class="form-label" for="personCode">Identificador único (Automático)</label>
+              <input type="text" id="personCode" class="form-input" placeholder="Generando automáticamente..." readonly style="background: rgba(255,255,255,0.06); cursor: default;" autocomplete="off">
             </div>
           </div>
 
@@ -1209,17 +1209,27 @@
       previewGrid.innerHTML = "";
       hideAlert();
 
-      // Consultar estadísticas de cupo
+      // Consultar estadísticas de cupo y siguiente identificador único disponible
       try {
-        const res = await fetch("/api/persons/domicile-stats?domicile=" + encodeURIComponent(personDomicileInput.value || "Domicilio 1"));
-        if (res.ok) {
-          const stats = await res.json();
+        const domVal = encodeURIComponent(personDomicileInput.value || "Domicilio 1");
+        const [statsRes, codeRes] = await Promise.all([
+          fetch("/api/persons/domicile-stats?domicile=" + domVal),
+          fetch("/api/persons/next-code?domicile=" + domVal)
+        ]);
+
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
           if (stats.limit_reached) {
             alert(`Límite alcanzado: Se ha alcanzado el límite máximo de ${stats.max_limit} personas autorizadas para este domicilio.`);
             return;
           }
-          // Sugerir código único
-          personCodeInput.value = `DOM-${String(stats.authorized_count + 1).padStart(3, '0')}`;
+        }
+
+        if (codeRes.ok) {
+          const codeData = await codeRes.json();
+          personCodeInput.value = codeData.next_code;
+        } else {
+          personCodeInput.value = "DOM-001";
         }
       } catch (e) {
         personCodeInput.value = "DOM-001";
@@ -1340,8 +1350,7 @@
         return;
       }
       if (!code) {
-        showAlert("El identificador único es obligatorio.", true);
-        return;
+        // Si por alguna razón está vacío, el backend lo genera automáticamente sin error
       }
 
       if (selectedFiles.length < 5) {
@@ -1480,16 +1489,24 @@
           const dets = data.current_detections || [];
           if (dets.length === 0) {
             detectionBanner.className = "detection-banner banner-idle";
+            detectionBanner.style.borderColor = "";
             detectionBanner.innerHTML = "<span>⚪</span> <span>Esperando rostros frente a la cámara...</span>";
           } else {
             const first = dets[0];
-            if (first.is_authorized) {
+            if (!first.is_confirmed) {
+              // HU06: Validación en curso (3 revisiones seguidas antes de confirmar alerta)
+              detectionBanner.className = "detection-banner banner-idle";
+              detectionBanner.style.borderColor = "var(--warning)";
+              detectionBanner.innerHTML = `<span>⏳</span> <span>Validando presencia... (${first.consecutive_count}/${first.required_count})</span>`;
+            } else if (first.is_authorized) {
+              detectionBanner.style.borderColor = "";
               detectionBanner.className = "detection-banner banner-match";
-              detectionBanner.innerHTML = `<span>✅</span> <span><strong>${first.name}</strong> detectado (${first.confidence}% coincidencia)</span>`;
+              detectionBanner.innerHTML = `<span>✅</span> <span><strong>${first.name}</strong> detectado (${first.confidence}% coincidencia) [CONFIRMADO]</span>`;
               addLog(first.name, first.confidence, true);
             } else {
+              detectionBanner.style.borderColor = "";
               detectionBanner.className = "detection-banner banner-unknown";
-              detectionBanner.innerHTML = `<span>⚠️</span> <span><strong>Persona No Reconocida</strong> detectada (${first.confidence}% similitud)</span>`;
+              detectionBanner.innerHTML = `<span>⚠️</span> <span><strong>Persona No Reconocida</strong> detectada (${first.confidence}% similitud) [CONFIRMADO]</span>`;
               addLog("Desconocido", first.confidence, false);
             }
           }

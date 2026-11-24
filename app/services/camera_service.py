@@ -20,6 +20,7 @@ import cv2
 import numpy as np
 
 from app.core.config import settings
+from app.services.detection_tracker import DetectionTracker, save_confirmed_event_to_db
 
 CATALOG_PATH = Path("data/known_faces.pkl")
 
@@ -34,6 +35,10 @@ class CameraService:
         self.inference_interval = int(os.getenv("INFERENCE_INTERVAL", "5"))
         self.known_faces: Dict[str, np.ndarray] = {}
         self.face_app = None
+
+        # Rastreador de confirmación de 3 revisiones (HU06)
+        self.tracker = DetectionTracker()
+        self.cached_display_detections: List[dict] = []
 
         self.running = False
         self.thread: Optional[threading.Thread] = None
@@ -161,22 +166,46 @@ class CameraService:
                     print(f"[CameraService] Error en detección: {e}")
                     cached_faces = []
 
+                # Extraer detecciones brutas para alimentar el rastreador de confirmación (HU06)
+                raw_dets = []
+                for face in cached_faces:
+                    box = face.bbox.astype(int)
+                    name, score = self._identify(face.embedding)
+                    raw_dets.append({
+                        "name": name,
+                        "confidence": round(score * 100, 1),
+                        "is_authorized": (name != "Desconocido"),
+                        "box": [int(box[0]), int(box[1]), int(box[2]), int(box[3])]
+                    })
+
+                # Actualizar el rastreador (filtro de 3 revisiones consecutivas)
+                self.cached_display_detections, confirmed_events = self.tracker.update(raw_dets)
+
+                # Persistir eventos confirmados automáticamente en la BD (HU06 - Criterio 4)
+                for ev in confirmed_events:
+                    save_confirmed_event_to_db(ev)
+
             detections_info = []
 
             # Dibujar detecciones sobre el cuadro de visualización
-            for face in cached_faces:
-                box = face.bbox.astype(int)
-                x1, y1, x2, y2 = box[0], box[1], box[2], box[3]
+            for det in self.cached_display_detections:
+                x1, y1, x2, y2 = det["box"]
+                is_confirmed = det["is_confirmed"]
+                is_authorized = det["is_authorized"]
 
-                name, score = self._identify(face.embedding)
-                is_authorized = (name != "Desconocido")
-                color = (0, 255, 0) if is_authorized else (0, 0, 255)
+                if is_confirmed:
+                    # Rostro confirmado: verde si autorizado, rojo si desconocido
+                    color = (0, 255, 0) if is_authorized else (0, 0, 255)
+                    label = f"{det['name']} ({det['confidence']}%)"
+                else:
+                    # En proceso de validación (1/3 o 2/3): amarillo
+                    color = (0, 215, 255)
+                    label = f"Validando... ({det['consecutive_count']}/{det['required_count']})"
 
                 # Bounding box
                 cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
 
                 # Etiqueta
-                label = f"{name} ({score * 100:.1f}%)"
                 y_label = max(y1 - 10, 20)
                 cv2.putText(
                     display_frame,
@@ -189,12 +218,7 @@ class CameraService:
                     cv2.LINE_AA
                 )
 
-                detections_info.append({
-                    "name": name,
-                    "confidence": round(score * 100, 1),
-                    "is_authorized": is_authorized,
-                    "box": [int(x1), int(y1), int(x2), int(y2)]
-                })
+                detections_info.append(det)
 
             # Medir FPS cada segundo
             now = time.time()

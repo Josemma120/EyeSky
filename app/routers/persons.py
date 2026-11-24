@@ -93,13 +93,24 @@ def check_duplicate_person(db: Session, name: str, unique_code: Optional[str], e
                 detail=f"Registro duplicado: Ya existe una persona con el identificador único '{unique_code}'."
             )
 
-def generate_default_code(db: Session, domicile: str) -> str:
-    """Genera un código único de negocio si no se proporciona (ej: DOM-001)."""
-    total = db.query(Person).count() + 1
-    return f"DOM-{total:03d}"
+def generate_default_code(db: Session, domicile: str = "Domicilio 1") -> str:
+    """
+    Genera automáticamente el primer identificador único disponible (ej: DOM-001, DOM-002...).
+    Si se borra alguna persona (por ejemplo DOM-003), reutiliza automáticamente ese número libre.
+    """
+    existing_codes = {p[0].strip() for p in db.query(Person.unique_code).all() if p[0]}
+    i = 1
+    while f"DOM-{i:03d}" in existing_codes:
+        i += 1
+    return f"DOM-{i:03d}"
 
 
 # ---- Rutas API ----
+
+@router.get("/next-code")
+def get_next_person_code(domicile: str = "Domicilio 1", db: Session = Depends(get_db)):
+    """Retorna automáticamente el siguiente código disponible para registrar una persona (HU01)."""
+    return {"next_code": generate_default_code(db, domicile)}
 
 @router.get("/", response_model=List[PersonOut])
 def list_persons(db: Session = Depends(get_db)):
